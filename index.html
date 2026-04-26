@@ -1,276 +1,248 @@
 <!DOCTYPE html>
 <html lang="es">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Portafolio Académico - Hector Aliaga</title>
-    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js"></script>
-    <style>
-        /* --- ESTILOS GENERALES --- */
-        *{margin:0;padding:0;box-sizing:border-box;font-family:'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;}
-        body{ background:#020617; color:#e2e8f0; transition:0.4s; overflow-x: hidden; min-height: 100vh;}
-        #bg{ position:fixed; width:100%; height:100%; z-index:-1; top:0; left:0;}
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Portafolio Académico - Hector Aliaga</title>
 
-        /* --- LOGIN CARD --- */
-        #auth-container { display: flex; justify-content: center; align-items: center; height: 100vh; width: 100%; }
-        .auth-card { 
-            background: rgba(15, 23, 42, 0.95); 
-            padding: 40px; 
-            border-radius: 20px; 
-            box-shadow: 0 20px 50px rgba(0,0,0,0.6); 
-            width: 100%; 
-            max-width: 380px; 
-            text-align: center; 
-            backdrop-filter: blur(15px); 
-            border: 1px solid #334155; 
-        }
-        .auth-card h2 { margin-bottom: 10px; color: #38bdf8; font-size: 24px; }
-        .auth-card input { 
-            width: 100%; padding: 14px; margin: 10px 0; border-radius: 10px; 
-            border: 1px solid #334155; background: #0f172a; color: white; outline: none; 
-        }
-        .auth-card button { 
-            width: 100%; padding: 14px; margin-top: 20px; border-radius: 10px; border: none; 
-            background: #38bdf8; color: #020617; font-weight: bold; cursor: pointer; transition: 0.3s; 
-        }
-        .auth-card button:hover { background: #7dd3fc; transform: translateY(-2px); }
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js"></script>
 
-        /* --- CONTENIDO PRINCIPAL --- */
-        #main-content { display: none; }
-        .header{ 
-            position:fixed; top:0; width:100%; height:70px; background:rgba(2,6,23,0.85); 
-            backdrop-filter:blur(10px); display:flex; align-items:center; padding:0 30px; 
-            justify-content: space-between; z-index: 100; border-bottom: 1px solid rgba(255,255,255,0.1); 
-        }
-        .user-info { display: flex; align-items: center; gap: 10px; font-weight: bold; }
-        .badge { background: #38bdf8; color: #020617; padding: 3px 8px; border-radius: 5px; font-size: 11px; text-transform: uppercase; }
+<style>
+*{margin:0;padding:0;box-sizing:border-box;font-family:'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;}
 
-        .sidebar{ 
-            position:fixed; left:0; top:70px; width:180px; height:100%; 
-            background:rgba(2,6,23,0.95); padding:20px; border-right: 1px solid rgba(255,255,255,0.1); 
-        }
-        .sidebar button{ 
-            width:100%; margin-bottom:12px; padding:12px; border:none; border-radius:10px; 
-            cursor:pointer; transition:0.3s; font-weight: 600; background: rgba(255,255,255,0.05); color: inherit; 
-        }
-        .sidebar button:hover{ background: rgba(56, 189, 248, 0.2); transform: scale(1.02); }
+body{
+    background:#020617;
+    color:#e2e8f0;
+    transition: background 0.5s ease, color 0.5s ease;
+    overflow-x: hidden;
+    min-height: 100vh;
+}
 
-        .main{ margin-top:90px; margin-left:200px; padding:20px; }
-        .banner h1{ 
-            text-align:center; padding:12px 40px; border-radius:50px; color:#000; 
-            font-size:22px; margin: 0 auto 40px auto; width: fit-content; 
-        }
+#bg{ position:fixed; width:100%; height:100%; z-index:-1; top:0; left:0;}
 
-        .section{display:none; animation: fadeIn 0.5s ease;}
-        .section.active{display:block;}
-        @keyframes fadeIn { from{opacity:0;} to{opacity:1;} }
+/* 🎨 FONDOS PASTEL */
+.theme1{ background:#f0f9ff; color:#0c4a6e; }
+.theme2{ background:#f0fdf4; color:#065f46; }
+.theme3{ background:#faf5ff; color:#581c87; }
+.theme4{ background:#fff7ed; color:#7c2d12; }
 
-        .grid{ display:grid; grid-template-columns:repeat(auto-fit,minmax(280px,1fr)); gap:25px; }
-        .card{ padding:20px; border-radius:20px; border: 1px solid rgba(0,0,0,0.05); transition: 0.3s; }
-        
-        /* --- PERMISOS DE ROL --- */
-        .admin-controls { display: none; margin-bottom: 15px; border-bottom: 1px solid rgba(0,0,0,0.1); padding-bottom: 10px; }
-        body.is-admin .admin-controls { display: block; }
+/* LOGIN MODAL */
+#auth-container {
+display:none;
+position:fixed;
+top:0; left:0;
+width:100%; height:100%;
+background:rgba(0,0,0,0.6);
+justify-content:center;
+align-items:center;
+z-index:999;
+}
 
-        .file-item { 
-            display: flex; justify-content: space-between; align-items: center; 
-            background: rgba(255,255,255,0.2); padding: 10px; border-radius: 8px; margin-top: 10px; 
-        }
-        .file-item a { text-decoration: none; color: inherit; font-size: 13px; font-weight: 500; overflow: hidden; text-overflow: ellipsis; }
-        .delete-btn { background:#ef4444; color:white; border:none; padding:5px 8px; border-radius:5px; cursor:pointer; font-size: 10px; display: none; }
-        body.is-admin .delete-btn { display: block; }
-        
-        button.upload-btn { 
-            margin-top:10px; padding:10px; width:100%; border-radius:8px; 
-            border:none; cursor:pointer; font-weight:bold; 
-        }
+.auth-card { 
+background: rgba(15, 23, 42, 0.95); 
+padding: 40px; 
+border-radius: 20px; 
+box-shadow: 0 20px 50px rgba(0,0,0,0.6); 
+width: 100%; 
+max-width: 380px; 
+text-align: center; 
+backdrop-filter: blur(15px); 
+border: 1px solid #334155; 
+}
 
-        /* --- TEMAS --- */
-        .theme1{ background:#f0f9ff; color:#0c4a6e; } .theme1 .card{background:#e0f2fe;} .theme1 .banner h1{background:#bae6fd;} .theme1 .upload-btn{background:#7dd3fc;}
-        .theme2{ background:#f0fdf4; color:#065f46; } .theme2 .card{background:#dcfce7;} .theme2 .banner h1{background:#bbf7d0;} .theme2 .upload-btn{background:#86efac;}
-        .theme3{ background:#faf5ff; color:#581c87; } .theme3 .card{background:#f3e8ff;} .theme3 .banner h1{background:#e9d5ff;} .theme3 .upload-btn{background:#c084fc;}
-        .theme4{ background:#fff7ed; color:#7c2d12; } .theme4 .card{background:#ffedd5;} .theme4 .banner h1{background:#fed7aa;} .theme4 .upload-btn{background:#fdba74;}
-    </style>
+.auth-card input { 
+width: 100%; padding: 14px; margin: 10px 0; border-radius: 10px; 
+border: 1px solid #334155; background: #0f172a; color: white; outline: none; 
+}
+
+.auth-card button { 
+width: 100%; padding: 14px; margin-top: 10px; border-radius: 10px; border: none; 
+background: #38bdf8; color: #020617; font-weight: bold; cursor: pointer; 
+}
+
+/* HEADER */
+.header{ 
+position:fixed; top:0; width:100%; height:70px; 
+background:rgba(2,6,23,0.85); 
+backdrop-filter:blur(12px);
+display:flex; align-items:center; padding:0 30px; 
+justify-content: space-between; z-index: 100; 
+}
+
+/* BOTÓN LOGIN */
+.login-btn{
+    background: linear-gradient(135deg, #38bdf8, #0ea5e9);
+    color: white;
+    border: none;
+    padding: 8px 18px;
+    border-radius: 20px;
+    cursor: pointer;
+    font-weight: 600;
+    font-size: 14px;
+    box-shadow: 0 4px 12px rgba(56,189,248,0.4);
+    transition: all 0.3s ease;
+}
+.login-btn:hover{
+    transform: translateY(-2px) scale(1.05);
+    box-shadow: 0 8px 20px rgba(56,189,248,0.6);
+}
+.login-btn:active{
+    transform: scale(0.95);
+}
+
+/* LOGOUT */
+#logoutBtn{
+    background: linear-gradient(135deg, #ef4444, #dc2626);
+    color: white;
+    border: none;
+    padding: 8px 18px;
+    border-radius: 20px;
+    cursor: pointer;
+    font-weight: 600;
+}
+
+/* SIDEBAR */
+.sidebar{ 
+position:fixed; left:0; top:70px; width:180px; height:100%; 
+background:rgba(2,6,23,0.95); padding:20px; 
+}
+
+.sidebar button{ 
+width:100%; margin-bottom:12px; padding:12px; border:none; border-radius:10px; 
+cursor:pointer; background: rgba(255,255,255,0.05); color: inherit; 
+}
+
+/* MAIN */
+.main{ margin-top:90px; margin-left:200px; padding:20px; }
+
+.section{display:none;}
+.section.active{display:block;}
+
+.grid{ display:grid; grid-template-columns:repeat(auto-fit,minmax(280px,1fr)); gap:25px; }
+
+/* TARJETAS */
+.card{ padding:20px; border-radius:20px; }
+
+/* COLORES PASTEL POR SEMANA */
+.card:nth-child(4n+1){ background:#e0f2fe; }
+.card:nth-child(4n+2){ background:#dcfce7; }
+.card:nth-child(4n+3){ background:#f3e8ff; }
+.card:nth-child(4n+4){ background:#ffedd5; }
+
+.admin-controls { display:none; }
+body.is-admin .admin-controls { display:block; }
+
+.delete-btn { display:none; }
+body.is-admin .delete-btn { display:block; }
+
+</style>
 </head>
+
 <body class="theme1">
 
 <canvas id="bg"></canvas>
 
+<!-- LOGIN -->
 <div id="auth-container">
-    <div class="auth-card">
-        <h2>Portafolio Digital</h2>
-        <input type="text" id="user-input" placeholder="Usuario">
-        <input type="password" id="pass-input" placeholder="Contraseña">
-        <button onclick="login()">Ingresar</button>
-    </div>
+<div class="auth-card">
+<h2>Portafolio Digital</h2>
+<input type="text" id="user-input" placeholder="Usuario">
+<input type="password" id="pass-input" placeholder="Contraseña">
+<button onclick="login()">Ingresar</button>
+<button onclick="closeLogin()">Cancelar</button>
+</div>
 </div>
 
 <div id="main-content">
-    <div class="header">
-        <div class="user-info">
-            HECTOR ALIAGA <span id="role-label" class="badge"></span>
-        </div>
-        <button onclick="logout()" style="background:#ef4444; color:white; border:none; padding:8px 15px; border-radius:8px; cursor:pointer; font-weight:bold;">Cerrar Sesión</button>
-    </div>
 
-    <div class="sidebar">
-        <button onclick="setTab(1)">Unidad I</button>
-        <button onclick="setTab(2)">Unidad II</button>
-        <button onclick="setTab(3)">Unidad III</button>
-        <button onclick="setTab(4)">Unidad IV</button>
-    </div>
+<div class="header">
+<div>
+HECTOR ALIAGA <span id="role-label"></span>
+</div>
 
-    <div class="main">
-        <div class="banner"><h1>ARQUITECTURA DE SOFTWARE</h1></div>
-        <div id="sections-wrapper"></div>
-    </div>
+<div>
+<button onclick="openLogin()" id="loginBtn" class="login-btn">🔐 Login</button>
+<button onclick="logout()" id="logoutBtn" style="display:none;">Cerrar Sesión</button>
+</div>
+</div>
+
+<div class="sidebar">
+<button onclick="setTab(1)">Unidad I</button>
+<button onclick="setTab(2)">Unidad II</button>
+<button onclick="setTab(3)">Unidad III</button>
+<button onclick="setTab(4)">Unidad IV</button>
+</div>
+
+<div class="main">
+<h2>ARQUITECTURA DE SOFTWARE</h2>
+<div id="sections-wrapper"></div>
+</div>
+
 </div>
 
 <script>
-// 1. CONFIGURACIÓN SUPABASE
-const supabaseUrl = "https://fvneckjhfnugswlajjsf.supabase.co/rest/v1/";
-const supabaseKey = "sb_publishable_347CgxS4Qp61lnTRgFlh1g_iNTcBLSo"; 
-const supabaseClient = supabase.createClient(supabaseUrl, supabaseKey);
+let userRole='user';
 
-let userRole = 'user';
+// RENDER
+const wrapper=document.getElementById("sections-wrapper");
 
-// 2. LÓGICA DE AUTENTICACIÓN
-function login() {
-    const u = document.getElementById('user-input').value;
-    const p = document.getElementById('pass-input').value;
-
-    if (u === "Admin" && p === "A123") {
-        startApp('admin');
-    } else if (u === "Invitado" && p === "U123") {
-        startApp('user');
-    } else {
-        alert("Credenciales no válidas");
-    }
-}
-
-function startApp(role) {
-    userRole = role;
-    localStorage.setItem('portfolio_session', role);
-    
-    document.getElementById('auth-container').style.display = 'none';
-    document.getElementById('main-content').style.display = 'block';
-    document.getElementById('role-label').innerText = role;
-
-    if(role === 'admin') document.body.classList.add('is-admin');
-    else document.body.classList.remove('is-admin');
-
-    // Carga inicial de archivos desde Supabase
-    refreshAllFiles();
-}
-
-function logout() {
-    localStorage.removeItem('portfolio_session');
-    location.reload();
-}
-
-// 3. RENDERIZADO DE INTERFAZ
-const wrapper = document.getElementById("sections-wrapper");
 for(let u=1; u<=4; u++){
-    let sectionHtml = `
-        <div class="section ${u===1?'active':''}" id="sec-${u}">
-            <h2>Archivos de la Unidad ${u}</h2>
-            <div class="grid">`;
-    
-    for(let s=1; s<=4; s++){
-        let folderId = `U${u}_S${s}`;
-        sectionHtml += `
-            <div class="card">
-                <h3>Semana ${s}</h3>
-                <div class="admin-controls">
-                    <input type="file" id="inp-${folderId}" style="font-size:11px; width:100%">
-                    <button class="upload-btn" onclick="uploadToSupabase('${folderId}')">Subir</button>
-                </div>
-                <div id="list-${folderId}"></div>
-            </div>`;
-    }
-    sectionHtml += `</div></div>`;
-    wrapper.innerHTML += sectionHtml;
+let html=`<div class="section ${u===1?'active':''}" id="sec-${u}">
+<h2>Archivos Unidad ${u}</h2><div class="grid">`;
+
+for(let s=1; s<=4; s++){
+let folder=`U${u}_S${s}`;
+html+=`<div class="card">
+<h3>Semana ${s}</h3>
+<div class="admin-controls">
+<input type="file">
+<button>Subir</button>
+</div>
+</div>`;
+}
+html+=`</div></div>`;
+wrapper.innerHTML+=html;
 }
 
-// 4. FUNCIONES DE SUPABASE (STORAGE)
-async function uploadToSupabase(folder) {
-    const fileInp = document.getElementById("inp-"+folder);
-    const file = fileInp.files[0];
-    if(!file) return alert("Selecciona un archivo");
+// LOGIN
+function openLogin(){document.getElementById('auth-container').style.display='flex';}
+function closeLogin(){document.getElementById('auth-container').style.display='none';}
 
-    const fileName = `${Date.now()}_${file.name}`;
-    const filePath = `${folder}/${fileName}`;
+function login(){
+let u=document.getElementById('user-input').value;
+let p=document.getElementById('pass-input').value;
 
-    const { error } = await supabaseClient.storage.from('Archivos').upload(filePath, file);
-
-    if(error) alert("Error: " + error.message);
-    else {
-        fileInp.value = "";
-        loadFilesFromFolder(folder);
-    }
+if(u==="Admin" && p==="A123"){
+startApp('admin');
+closeLogin();
+}else alert("Credenciales incorrectas");
 }
 
-async function loadFilesFromFolder(folder) {
-    const { data, error } = await supabaseClient.storage.from('Archivos').list(folder);
-    const listDiv = document.getElementById("list-"+folder);
-    if(error || !listDiv) return;
+function startApp(role){
+userRole=role;
+document.getElementById('main-content').style.display='block';
+document.getElementById('role-label').innerText=role;
 
-    listDiv.innerHTML = "";
-    if(data) {
-        data.forEach(item => {
-            if(item.name === ".emptyFolderPlaceholder") return;
-            const publicUrl = `${supabaseUrl}/storage/v1/object/public/Archivos/${folder}/${item.name}`;
-            
-            listDiv.innerHTML += `
-                <div class="file-item">
-                    <a href="${publicUrl}" target="_blank">${item.name}</a>
-                    <button class="delete-btn" onclick="deleteFromSupabase('${folder}','${item.name}')">Eliminar</button>
-                </div>`;
-        });
-    }
+if(role==='admin'){
+document.body.classList.add('is-admin');
+document.getElementById('loginBtn').style.display='none';
+document.getElementById('logoutBtn').style.display='inline';
+}
 }
 
-async function deleteFromSupabase(folder, name) {
-    if(!confirm("¿Borrar este archivo permanentemente?")) return;
-    const { error } = await supabaseClient.storage.from('Archivos').remove([`${folder}/${name}`]);
-    if(error) alert("No se pudo borrar");
-    else loadFilesFromFolder(folder);
+// LOGOUT
+function logout(){location.reload();}
+
+// NAV
+function setTab(n){
+document.body.className=`theme${n} ${userRole==='admin'?'is-admin':''}`;
+document.querySelectorAll(".section").forEach(s=>s.classList.remove("active"));
+document.getElementById("sec-"+n).classList.add("active");
 }
 
-function refreshAllFiles() {
-    for(let u=1; u<=4; u++) {
-        for(let s=1; s<=4; s++) { loadFilesFromFolder(`U${u}_S${s}`); }
-    }
-}
-
-// 5. NAVEGACIÓN Y TEMAS
-function setTab(n) {
-    document.body.className = `theme${n} ${userRole === 'admin' ? 'is-admin' : ''}`;
-    document.querySelectorAll(".section").forEach(s => s.classList.remove("active"));
-    document.getElementById("sec-"+n).classList.add("active");
-}
-
-// 6. ANIMACIÓN DE FONDO
-const canvas=document.getElementById("bg");
-const ctx=canvas.getContext("2d");
-function res() { canvas.width=window.innerWidth; canvas.height=window.innerHeight; }
-window.onresize=res; res();
-let particles=[];
-for(let i=0; i<60; i++) particles.push({x:Math.random()*canvas.width, y:Math.random()*canvas.height, vx:0.4, vy:0.4});
-function animate(){
-    ctx.clearRect(0,0,canvas.width,canvas.height);
-    particles.forEach(p=>{
-        p.x+=p.vx; p.y+=p.vy;
-        if(p.x>canvas.width)p.x=0; if(p.y>canvas.height)p.y=0;
-        ctx.fillStyle="#38bdf8"; ctx.fillRect(p.x,p.y,2,2);
-    });
-    requestAnimationFrame(animate);
-}
-animate();
-
-// 7. PERSISTENCIA
-const activeSession = localStorage.getItem('portfolio_session');
-if(activeSession) startApp(activeSession);
+// AUTO INVITADO
+startApp('user');
 </script>
+
 </body>
 </html>
